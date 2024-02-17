@@ -1,20 +1,27 @@
 import sys
 import pygame
 
-pygame.init()
 
-# Set display window properties (size and title)
-window = pygame.display.set_mode((1280, 720))
-pygame.display.set_caption('PyNinja')
+class Game:
+    def __init__(self):
+        pygame.init()
 
-clock = pygame.time.Clock()
+        # Set display window properties (size and title)
+        self.window = pygame.display.set_mode((1280, 720))
+        pygame.display.set_caption('PyNinja')
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+        self.clock = pygame.time.Clock()
 
-    pygame.display.update()
-    # Limit the game to 60 FPS
-    clock.tick(60)
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+            pygame.display.update()
+            # Limit the game to 60 FPS
+            self.clock.tick(60)
+
+
+Game().run()
