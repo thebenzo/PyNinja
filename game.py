@@ -1,6 +1,7 @@
 import sys
 import pygame
 
+from scripts.utils import load_sprite
 from scripts.entities import PhysicsEntity
 
 
@@ -12,13 +13,9 @@ class Game:
         self.window = pygame.display.set_mode((1280, 720))
         pygame.display.set_caption('PyNinja')
 
-        # Loading player sprite asset (this is temporarily done here)
-        playerSprite = pygame.image.load('assets/sprites/entities/player.png')
-        playerSprite.set_colorkey((0, 0, 0))
-
         # Dictionary of game assets with entityType as the key
         self.assets = {
-            'player': playerSprite
+            'player': load_sprite('entities/player.png')
         }
 
         # The boolean list represents [left, right] movement
