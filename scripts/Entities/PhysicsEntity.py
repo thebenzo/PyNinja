@@ -16,6 +16,4 @@ class PhysicsEntity:
         self.pos[1] += frame_movement[1]
 
     def render(self, surface):
-        player_sprite = pygame.image.load('assets/images/entities/player.png').convert()
-        player_sprite.set_colorkey((0, 0, 0))
-        surface.blit(player_sprite, self.pos)
+        surface.blit(self.game.assets['player'], self.pos)

@@ -1,7 +1,8 @@
 import sys
 import pygame
 
-from scripts.Entities.PhysicsEntity import PhysicsEntity
+from scripts.entities.PhysicsEntity import PhysicsEntity
+from scripts.Utils import load_sprite
 
 
 class Game:
@@ -14,6 +15,11 @@ class Game:
         pygame.display.set_caption('PyNinja')
 
         self.clock = pygame.time.Clock()
+
+        # Dictionary to store game asset objects mapped to their name string as key
+        self.assets = {
+            'player': load_sprite('entities/player.png')
+        }
 
         self.player = PhysicsEntity(self, (50, 50), (15, 8))
 
