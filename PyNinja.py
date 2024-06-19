@@ -1,6 +1,8 @@
 import sys
 import pygame
 
+from scripts.Entities.PhysicsEntity import PhysicsEntity
+
 
 class Game:
     def __init__(self):
@@ -13,7 +15,7 @@ class Game:
 
         self.clock = pygame.time.Clock()
 
-        self.pos = [100, 200]
+        self.player = PhysicsEntity(self, (50, 50), (15, 8))
 
         # Movement state on x-axis
         self.movement_x = [False, False]
@@ -23,10 +25,9 @@ class Game:
         while True:
             self.window.fill((30, 150, 220))
 
-            pygame.draw.rect(self.window, (255, 255, 255), (self.pos[0], self.pos[1], 20, 20))
-
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
-            self.pos[0] += self.movement_x[1] - self.movement_x[0]
+            self.player.update((self.movement_x[1] - self.movement_x[0], 0))
+            self.player.render(self.window)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
