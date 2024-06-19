@@ -14,10 +14,14 @@ class Game:
         self.window = pygame.display.set_mode((640, 480))
         pygame.display.set_caption('PyNinja')
 
+        # Game is rendered on this surface, and it's later scaled to match windows size
+        self.viewport = pygame.Surface((320, 240))
+
         self.clock = pygame.time.Clock()
 
         # Dictionary to store game asset objects mapped to their name string as key
         self.assets = {
+            'background': load_sprite('background.png'),
             'player': load_sprite('entities/player.png')
         }
 
@@ -29,11 +33,11 @@ class Game:
     def run(self):
         """ Main game loop """
         while True:
-            self.window.fill((30, 150, 220))
+            self.viewport.blit(self.assets['background'], (0, 0))
 
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update((self.movement_x[1] - self.movement_x[0], 0))
-            self.player.render(self.window)
+            self.player.render(self.viewport)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -49,6 +53,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+            # Viewport is rendered in the main window and is scaled to match its size to mimic a zoomed-in effect
+            self.window.blit(pygame.transform.scale(self.viewport, self.window.get_size()), (0, 0))
 
             pygame.display.update()
             self.clock.tick(60)
