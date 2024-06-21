@@ -28,7 +28,8 @@ class Game:
             'stone': load_sprites('tiles/stone')
         }
 
-        self.player = PhysicsEntity(self, (50, 50), (15, 8))
+        self.player = PhysicsEntity(self, (100, 50), (8, 15))
+        self.jump_force = 2
 
         # Movement state on x-axis
         self.movement_x = [False, False]
@@ -41,7 +42,7 @@ class Game:
             self.viewport.blit(self.assets['background'], (0, 0))
 
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
-            self.player.update((self.movement_x[1] - self.movement_x[0], 0))
+            self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
             self.player.render(self.viewport)
 
             self.tilemap.render(self.viewport)
@@ -52,6 +53,8 @@ class Game:
                         self.movement_x[0] = True
                     if event.key == pygame.K_d:
                         self.movement_x[1] = True
+                    if event.key == pygame.K_SPACE:
+                        self.player.velocity[1] = -self.jump_force
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement_x[0] = False
