@@ -45,7 +45,8 @@ class Tilemap:
                 collision_rects.append(pygame.Rect(self.__grid_to_world_pos(tile['pos']), (self.tile_size, self.tile_size)))
         return collision_rects
 
-    def render(self, surf):
+    def render(self, surf, offset=(0, 0)):
         for tile_key in self.grid_tiles:
             tile = self.grid_tiles[tile_key]
-            surf.blit(self.game.assets[tile['type']][tile['variant']], self.__grid_to_world_pos(tile['pos']))
+            world_pos = self.__grid_to_world_pos(tile['pos'])
+            surf.blit(self.game.assets[tile['type']][tile['variant']], (world_pos[0] - offset[0], world_pos[1] - offset[1]))

@@ -34,6 +34,9 @@ class Game:
         # Movement state on x-axis
         self.movement_x = [False, False]
 
+        # Camera
+        self.camera_scroll = [0, 0]
+
         self.tilemap = Tilemap(self)
 
     def run(self):
@@ -41,11 +44,15 @@ class Game:
         while True:
             self.viewport.blit(self.assets['background'], (0, 0))
 
+            self.camera_scroll[0] += (self.player.get_collision_rect().centerx - self.viewport.get_width() / 2 - self.camera_scroll[0]) / 30
+            self.camera_scroll[1] += (self.player.get_collision_rect().centery - self.viewport.get_height() / 2 - self.camera_scroll[1]) / 30
+            render_scroll = (int(self.camera_scroll[0]), int(self.camera_scroll[1]))
+
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
-            self.player.render(self.viewport)
+            self.player.render(self.viewport, render_scroll)
 
-            self.tilemap.render(self.viewport)
+            self.tilemap.render(self.viewport, render_scroll)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:

@@ -14,7 +14,7 @@ class PhysicsEntity:
         # Defines collision states in four directions
         self.collision_states = {'top': False, 'right': False, 'bottom': False, 'left': False}
 
-    def __get_collision_rect(self):
+    def get_collision_rect(self):
         """ Return a collision rect at entity position """
         return pygame.Rect(self.pos, self.size)
 
@@ -25,7 +25,7 @@ class PhysicsEntity:
         self.collision_states = {'top': False, 'right': False, 'bottom': False, 'left': False}
 
         self.pos[0] += frame_movement[0]
-        entity_rect = self.__get_collision_rect()
+        entity_rect = self.get_collision_rect()
         for tile_rect in tilemap.get_collision_rects(self.pos):
             if entity_rect.colliderect(tile_rect):
                 if frame_movement[0] > 0:
@@ -37,7 +37,7 @@ class PhysicsEntity:
                 self.pos[0] = entity_rect.x
 
         self.pos[1] += frame_movement[1]
-        entity_rect = self.__get_collision_rect()
+        entity_rect = self.get_collision_rect()
         for tile_rect in tilemap.get_collision_rects(self.pos):
             if entity_rect.colliderect(tile_rect):
                 if frame_movement[1] > 0:
@@ -55,5 +55,5 @@ class PhysicsEntity:
         if self.collision_states['top'] or self.collision_states['bottom']:
             self.velocity[1] = 0
 
-    def render(self, surface):
-        surface.blit(self.game.assets['player'], self.pos)
+    def render(self, surface, offset=(0, 0)):
+        surface.blit(self.game.assets['player'], (self.pos[0] - offset[0], self.pos[1] - offset[1]))
