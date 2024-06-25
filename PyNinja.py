@@ -3,6 +3,7 @@ import pygame
 
 from scripts.entities.PhysicsEntity import PhysicsEntity
 from scripts.Tilemap import Tilemap
+from scripts.Cloud import Clouds
 from scripts.Utils import load_sprite, load_sprites
 
 
@@ -25,7 +26,8 @@ class Game:
             'background': load_sprite('background.png'),
             'player': load_sprite('entities/player.png'),
             'grass': load_sprites('tiles/grass'),
-            'stone': load_sprites('tiles/stone')
+            'stone': load_sprites('tiles/stone'),
+            'clouds': load_sprites('clouds')
         }
 
         self.player = PhysicsEntity(self, (100, 50), (8, 15))
@@ -39,6 +41,8 @@ class Game:
 
         self.tilemap = Tilemap(self)
 
+        self.clouds = Clouds(self.assets['clouds'])
+
     def run(self):
         """ Main game loop """
         while True:
@@ -47,6 +51,9 @@ class Game:
             self.camera_scroll[0] += (self.player.get_collision_rect().centerx - self.viewport.get_width() / 2 - self.camera_scroll[0]) / 30
             self.camera_scroll[1] += (self.player.get_collision_rect().centery - self.viewport.get_height() / 2 - self.camera_scroll[1]) / 30
             render_scroll = (int(self.camera_scroll[0]), int(self.camera_scroll[1]))
+
+            self.clouds.update()
+            self.clouds.render(self.viewport, render_scroll)
 
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
