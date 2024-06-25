@@ -4,6 +4,7 @@ import pygame
 from scripts.entities.PhysicsEntity import PhysicsEntity
 from scripts.Tilemap import Tilemap
 from scripts.Cloud import Clouds
+from scripts.Animation import Animation
 from scripts.Utils import load_sprite, load_sprites
 
 
@@ -27,7 +28,10 @@ class Game:
             'player': load_sprite('entities/player.png'),
             'grass': load_sprites('tiles/grass'),
             'stone': load_sprites('tiles/stone'),
-            'clouds': load_sprites('clouds')
+            'clouds': load_sprites('clouds'),
+            'player/idle': Animation(load_sprites('entities/player/idle'), sprite_duration=6),
+            'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
+            'player/jump': Animation(load_sprites('entities/player/jump'))
         }
 
         self.player = PhysicsEntity(self, (100, 50), (8, 15))
