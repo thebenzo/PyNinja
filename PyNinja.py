@@ -28,6 +28,7 @@ class Game:
             'grass': load_sprites('tiles/grass'),
             'stone': load_sprites('tiles/stone'),
             'clouds': load_sprites('clouds'),
+            'decor': load_sprites('tiles/decor'),
             'player/idle': Animation(load_sprites('entities/player/idle'), sprite_duration=6),
             'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
             'player/jump': Animation(load_sprites('entities/player/jump'))
@@ -58,11 +59,11 @@ class Game:
             self.clouds.update()
             self.clouds.render(self.viewport, render_scroll)
 
+            self.tilemap.render(self.viewport, render_scroll)
+
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
             self.player.render(self.viewport, render_scroll)
-
-            self.tilemap.render(self.viewport, render_scroll)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:

@@ -15,9 +15,18 @@ class Tilemap:
         self.grid_tiles = {}
         self.offgrid_tiles = []
 
+        for i in range(6):
+            self.grid_tiles[str(4 + i) + ';10'] = {'type': 'grass', 'variant': 1, 'pos': (4 + i, 10)}
         for i in range(8):
-            self.grid_tiles[str(5 + i) + ';8'] = {'type': 'grass', 'variant': 1, 'pos': (5 + i, 8)}
-            self.grid_tiles['10;' + str(5 + i)] = {'type': 'stone', 'variant': 1, 'pos': (10, 5 + i)}
+            self.grid_tiles[str(8 + i) + ';13'] = {'type': 'grass', 'variant': 1, 'pos': (8 + i, 13)}
+        for i in range(12):
+            self.grid_tiles[str(18 + i) + ';16'] = {'type': 'grass', 'variant': 1, 'pos': (18 + i, 16)}
+        for i in range(4):
+            self.grid_tiles['12;' + str(9 + i)] = {'type': 'stone', 'variant': 1, 'pos': (12, 9 + i)}
+
+        self.offgrid_tiles.append({'type': 'decor', 'variant': 3, 'pos': (320.5, 240.0)})
+        self.offgrid_tiles.append({'type': 'decor', 'variant': 2, 'pos': (358.7, 240.0)})
+        self.offgrid_tiles.append({'type': 'decor', 'variant': 1, 'pos': (377.6, 240.0)})
 
     def __grid_to_world_pos(self, pos):
         """ Returns world position in pixels to a corresponding grid position """
@@ -46,6 +55,9 @@ class Tilemap:
         return collision_rects
 
     def render(self, surf, offset=(0, 0)):
+        for tile in self.offgrid_tiles:
+            surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
+
         for tile_key in self.grid_tiles:
             tile = self.grid_tiles[tile_key]
             world_pos = self.__grid_to_world_pos(tile['pos'])
