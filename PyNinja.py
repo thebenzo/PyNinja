@@ -1,7 +1,7 @@
 import sys
 import pygame
 
-from scripts.entities.PhysicsEntity import PhysicsEntity
+from scripts.entities.Player import Player
 from scripts.Tilemap import Tilemap
 from scripts.Cloud import Clouds
 from scripts.Animation import Animation
@@ -25,7 +25,6 @@ class Game:
         # Dictionary to store game asset objects mapped to their name string as key
         self.assets = {
             'background': load_sprite('background.png'),
-            'player': load_sprite('entities/player.png'),
             'grass': load_sprites('tiles/grass'),
             'stone': load_sprites('tiles/stone'),
             'clouds': load_sprites('clouds'),
@@ -34,7 +33,7 @@ class Game:
             'player/jump': Animation(load_sprites('entities/player/jump'))
         }
 
-        self.player = PhysicsEntity(self, (100, 50), (8, 15))
+        self.player = Player(self, (100, 50), (8, 15))
         self.jump_force = 2
 
         # Movement state on x-axis

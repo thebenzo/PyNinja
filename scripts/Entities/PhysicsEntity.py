@@ -3,7 +3,8 @@ import pygame
 
 class PhysicsEntity:
     """ Class for a game entity that simulates physics """
-    def __init__(self, game, pos, size):
+    def __init__(self, name, game, pos, size):
+        self.entity_name = name
         self.game = game
         self.pos = list(pos)
         self.size = size
@@ -14,9 +15,21 @@ class PhysicsEntity:
         # Defines collision states in four directions
         self.collision_states = {'top': False, 'right': False, 'bottom': False, 'left': False}
 
+        # Animation States
+        self.state = ''
+        self.flip = False
+        self.set_animation_state('idle')
+        self.anim_offset = (-3, -3)
+
     def get_collision_rect(self):
         """ Return a collision rect at entity position """
         return pygame.Rect(self.pos, self.size)
+
+    def set_animation_state(self, state):
+        """ Change animation state to the one passed as string """
+        if state != self.state:
+            self.state = state
+            self.animation = self.game.assets[self.entity_name + '/' + self.state].copy()
 
     def update(self, tilemap, movement=(0, 0)):
         frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])
@@ -48,6 +61,12 @@ class PhysicsEntity:
                     self.collision_states['top'] = True
                 self.pos[1] = entity_rect.y
 
+        # Flip the entity to face the move direction
+        if movement[0] > 0:
+            self.flip = False
+        elif movement[0] < 0:
+            self.flip = True
+
         # Apply gravity to the entity with a terminal velocity in y-axis
         self.velocity[1] = min(self.terminal_velocity_y, self.velocity[1] + self.gravity)
 
@@ -55,5 +74,8 @@ class PhysicsEntity:
         if self.collision_states['top'] or self.collision_states['bottom']:
             self.velocity[1] = 0
 
+        self.animation.update()
+
     def render(self, surface, offset=(0, 0)):
-        surface.blit(self.game.assets['player'], (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+        surface.blit(pygame.transform.flip(self.animation.get_frame_sprite(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0],
+                                                                                                        self.pos[1] - offset[1]+ self.anim_offset[1]))
