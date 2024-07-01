@@ -1,4 +1,6 @@
 import sys
+import math
+import random
 import pygame
 
 from scripts.entities.Player import Player
@@ -6,6 +8,7 @@ from scripts.Tilemap import Tilemap
 from scripts.Cloud import Clouds
 from scripts.Animation import Animation
 from scripts.Utils import load_sprite, load_sprites
+from scripts.ParticleSystem import Particle
 
 
 class Game:
@@ -29,9 +32,11 @@ class Game:
             'stone': load_sprites('tiles/stone'),
             'clouds': load_sprites('clouds'),
             'decor': load_sprites('tiles/decor'),
+            'large_decor': load_sprites('tiles/large_decor'),
             'player/idle': Animation(load_sprites('entities/player/idle'), sprite_duration=6),
             'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
-            'player/jump': Animation(load_sprites('entities/player/jump'))
+            'player/jump': Animation(load_sprites('entities/player/jump')),
+            'particle/leaf': Animation(load_sprites('particles/leaf'), sprite_duration=16, loop=False)
         }
 
         self.player = Player(self, (100, 50), (8, 15))
@@ -46,6 +51,12 @@ class Game:
         self.tilemap = Tilemap(self)
 
         self.clouds = Clouds(self.assets['clouds'])
+
+        # Particle System
+        self.particles = []
+        self.leaf_Spawner = []
+        for tree in self.tilemap.get_tiles([('large_decor', 2)], destroy=False):
+            self.leaf_Spawner.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
 
     def run(self):
         """ Main game loop """
@@ -64,6 +75,20 @@ class Game:
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
             self.player.render(self.viewport, render_scroll)
+
+            for rect in self.leaf_Spawner:
+                if random.random() * 99999 < rect.width * rect.height:
+                    pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
+                    self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.1, 0.3], frame=random.randint(0, 17)))
+
+            for particle in self.particles.copy():
+                destroy = particle.update()
+                particle.render(self.viewport, render_scroll)
+                if particle.type == 'leaf':
+                    # Using property of sine wave to imitate swaying effect on the leaf particles
+                    particle.pos[0] += math.sin(particle.animation.current_frame * 0.04) * 0.3
+                if destroy:
+                    self.particles.remove(particle)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:

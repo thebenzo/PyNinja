@@ -16,7 +16,7 @@ class Tilemap:
         self.offgrid_tiles = []
 
         for i in range(6):
-            self.grid_tiles[str(4 + i) + ';10'] = {'type': 'grass', 'variant': 1, 'pos': (4 + i, 10)}
+            self.grid_tiles[str(3 + i) + ';10'] = {'type': 'grass', 'variant': 1, 'pos': (3 + i, 10)}
         for i in range(8):
             self.grid_tiles[str(8 + i) + ';13'] = {'type': 'grass', 'variant': 1, 'pos': (8 + i, 13)}
         for i in range(12):
@@ -27,6 +27,8 @@ class Tilemap:
         self.offgrid_tiles.append({'type': 'decor', 'variant': 3, 'pos': (320.5, 240.0)})
         self.offgrid_tiles.append({'type': 'decor', 'variant': 2, 'pos': (358.7, 240.0)})
         self.offgrid_tiles.append({'type': 'decor', 'variant': 1, 'pos': (377.6, 240.0)})
+        self.offgrid_tiles.append({'type': 'large_decor', 'variant': 2, 'pos': (90.5, 120)})
+        self.offgrid_tiles.append({'type': 'large_decor', 'variant': 2, 'pos': (397.6, 213.0)})
 
     def __grid_to_world_pos(self, pos):
         """ Returns world position in pixels to a corresponding grid position """
@@ -45,6 +47,26 @@ class Tilemap:
             if check_pos in self.grid_tiles:
                 neighbour_tiles.append(self.grid_tiles[check_pos])
         return neighbour_tiles
+
+    def get_tiles(self, type_variant, destroy=True):
+        """ Return grid and offgrid tiles that matches (type, variant) tuple """
+        tiles = []
+        for pos in self.grid_tiles:
+            tile = self.grid_tiles[pos]
+            if (tile['type'], tile['variant']) in type_variant:
+                tiles.append(tile.copy())
+                tiles[-1]['pos'] = tiles[-1]['pos'].copy()
+                tiles[-1]['pos'] = self.__grid_to_world_pos(tiles[-1]['pos'])
+                if destroy:
+                    del self.grid_tiles[pos]
+
+        for tile in self.offgrid_tiles.copy():
+            if (tile['type'], tile['variant']) in type_variant:
+                tiles.append(tile.copy())
+                if destroy:
+                    self.offgrid_tiles.remove(tile)
+
+        return tiles
 
     def get_collision_rects(self, pos):
         """ Returns a list of collision rects of tiles around a position """
