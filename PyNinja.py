@@ -36,11 +36,11 @@ class Game:
             'player/idle': Animation(load_sprites('entities/player/idle'), sprite_duration=6),
             'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
             'player/jump': Animation(load_sprites('entities/player/jump')),
+            'player/wall_slide': Animation(load_sprites('entities/player/wall_slide')),
             'particle/leaf': Animation(load_sprites('particles/leaf'), sprite_duration=16, loop=False)
         }
 
         self.player = Player(self, (100, 50), (8, 15))
-        self.jump_force = 2
 
         # Movement state on x-axis
         self.movement_x = [False, False]
@@ -97,7 +97,7 @@ class Game:
                     if event.key == pygame.K_d:
                         self.movement_x[1] = True
                     if event.key == pygame.K_SPACE:
-                        self.player.velocity[1] = -self.jump_force
+                        self.player.jump()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement_x[0] = False

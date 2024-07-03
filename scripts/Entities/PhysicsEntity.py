@@ -12,6 +12,8 @@ class PhysicsEntity:
         self.terminal_velocity_y = 5.0
         self.gravity = 0.1
 
+        self.last_frame_movement = [0, 0]
+
         # Defines collision states in four directions
         self.collision_states = {'top': False, 'right': False, 'bottom': False, 'left': False}
 
@@ -73,6 +75,8 @@ class PhysicsEntity:
         # Reset the y velocity if entity is colliding at top or bottom
         if self.collision_states['top'] or self.collision_states['bottom']:
             self.velocity[1] = 0
+
+        self.last_frame_movement = movement
 
         self.animation.update()
 
