@@ -9,6 +9,9 @@ class Player(PhysicsEntity):
         self.airborne_time = 0
         self.jump_velocity = 2.6
         self.jump_count = 2
+        self.dash_velocity = 7
+        # Dashing lasts for 60 frames, out of which 10 defines the action and rest defines the cooldown period
+        self.dash_timeframe = 0
 
         # Defines wall sliding state for a frame. Resets every frame
         self.wall_slide = False
@@ -31,6 +34,14 @@ class Player(PhysicsEntity):
             self.velocity[1] = -self.jump_velocity
             self.jump_count -= 1
             self.airborne_time = 5
+
+    def dash(self):
+        """ Make player dash in its facing direction """
+        if self.dash_timeframe == 0:
+            if self.flip:
+                self.dash_timeframe = -60
+            else:
+                self.dash_timeframe = 60
 
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
@@ -57,6 +68,17 @@ class Player(PhysicsEntity):
                 self.set_animation_state('run')
             else:
                 self.set_animation_state('idle')
+
+        if self.dash_timeframe > 0:
+            self.dash_timeframe = max(0, self.dash_timeframe - 1)
+        if self.dash_timeframe < 0:
+            self.dash_timeframe = min(0, self.dash_timeframe + 1)
+
+        # If the dashing is in first 10 frames, i.e. the actual action
+        if abs(self.dash_timeframe) > 50:
+            self.velocity[0] = abs(self.dash_timeframe) / self.dash_timeframe * self.dash_velocity
+            if abs(self.dash_timeframe) == 51:
+                self.velocity[0] *= 0.1
 
         if self.velocity[0] > 0:
             self.velocity[0] = max(self.velocity[0] - 0.1, 0)
