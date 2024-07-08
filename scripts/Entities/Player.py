@@ -1,4 +1,8 @@
+import random
+import math
+
 from scripts.entities.PhysicsEntity import PhysicsEntity
+from scripts.ParticleSystem import Particle
 
 
 class Player(PhysicsEntity):
@@ -9,7 +13,7 @@ class Player(PhysicsEntity):
         self.airborne_time = 0
         self.jump_velocity = 2.6
         self.jump_count = 2
-        self.dash_velocity = 7
+        self.dash_velocity = 8
         # Dashing lasts for 60 frames, out of which 10 defines the action and rest defines the cooldown period
         self.dash_timeframe = 0
 
@@ -69,16 +73,28 @@ class Player(PhysicsEntity):
             else:
                 self.set_animation_state('idle')
 
-        if self.dash_timeframe > 0:
-            self.dash_timeframe = max(0, self.dash_timeframe - 1)
-        if self.dash_timeframe < 0:
-            self.dash_timeframe = min(0, self.dash_timeframe + 1)
-
         # If the dashing is in first 10 frames, i.e. the actual action
         if abs(self.dash_timeframe) > 50:
             self.velocity[0] = abs(self.dash_timeframe) / self.dash_timeframe * self.dash_velocity
             if abs(self.dash_timeframe) == 51:
                 self.velocity[0] *= 0.1
+            # Particle stream while dashing
+            particle_velocity = [abs(self.dash_timeframe) / self.dash_timeframe * random.random() * 3, 0]
+            self.game.particles.append(Particle(self.game, 'particle', self.get_collision_rect().center, velocity=particle_velocity, frame=random.randint(0, 3)))
+        if abs(self.dash_timeframe) in {60, 50}:
+            # Particle burst at beginning and end of a dash sequence
+            for i in range(10):
+                # Angle in radians
+                angle = random.random() * math.pi * 2
+                speed = random.random() * 0.5 + 0.5
+                # Calculate velocity vector from an angle in radian
+                particle_velocity = [math.cos(angle) * speed, math.sin(angle) * speed]
+                self.game.particles.append(Particle(self.game, 'particle', self.get_collision_rect().center, velocity=particle_velocity, frame=random.randint(0, 3)))
+
+        if self.dash_timeframe > 0:
+            self.dash_timeframe = max(0, self.dash_timeframe - 1)
+        if self.dash_timeframe < 0:
+            self.dash_timeframe = min(0, self.dash_timeframe + 1)
 
         if self.velocity[0] > 0:
             self.velocity[0] = max(self.velocity[0] - 0.1, 0)

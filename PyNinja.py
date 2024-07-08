@@ -37,7 +37,8 @@ class Game:
             'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
             'player/jump': Animation(load_sprites('entities/player/jump')),
             'player/wall_slide': Animation(load_sprites('entities/player/wall_slide')),
-            'particle/leaf': Animation(load_sprites('particles/leaf'), sprite_duration=16, loop=False)
+            'particle/leaf': Animation(load_sprites('particles/leaf'), sprite_duration=16, loop=False),
+            'particle/particle': Animation(load_sprites('particles/particle'), sprite_duration=6, loop=False)
         }
 
         self.player = Player(self, (100, 50), (8, 15))
