@@ -29,6 +29,11 @@ class Tilemap:
         self.offgrid_tiles.append({'type': 'decor', 'variant': 1, 'pos': (377.6, 240.0)})
         self.offgrid_tiles.append({'type': 'large_decor', 'variant': 2, 'pos': (90.5, 120)})
         self.offgrid_tiles.append({'type': 'large_decor', 'variant': 2, 'pos': (397.6, 213.0)})
+        # Player spawner
+        self.offgrid_tiles.append({'type': 'spawners', 'variant': 0, 'pos': (70.5, 120)})
+        # Enemy spawners
+        self.offgrid_tiles.append({'type': 'spawners', 'variant': 1, 'pos': (375.6, 213.0)})
+        self.offgrid_tiles.append({'type': 'spawners', 'variant': 1, 'pos': (90.5, 120)})
 
     def __grid_to_world_pos(self, pos):
         """ Returns world position in pixels to a corresponding grid position """
