@@ -73,9 +73,18 @@ class Tilemap:
 
         return tiles
 
-    def check_solid_tiles(self, pos, flip):
+    def check_solid_tiles_around(self, pos, flip):
         """ Check for solid tiles down to either sides of the position based on flip """
         grid_pos = self.__world_to_grid_pos((pos[0] - 7 if flip else pos[0] + 7, pos[1] + 23))
+        check_pos = str(grid_pos[0]) + ';' + str(grid_pos[1])
+        if check_pos in self.grid_tiles:
+            if self.grid_tiles[check_pos]['type'] in PHYSICS_TILES:
+                return True
+        return False
+
+    def check_solid_tile(self, pos):
+        """ Check if tile at pos is a solid tile """
+        grid_pos = self.__world_to_grid_pos(pos)
         check_pos = str(grid_pos[0]) + ';' + str(grid_pos[1])
         if check_pos in self.grid_tiles:
             if self.grid_tiles[check_pos]['type'] in PHYSICS_TILES:

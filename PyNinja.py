@@ -35,6 +35,7 @@ class Game:
             'decor': load_sprites('tiles/decor'),
             'spawners': load_sprites('tiles/spawners'),
             'gun': load_sprite('gun.png'),
+            'bullet': load_sprite('projectile.png'),
             'large_decor': load_sprites('tiles/large_decor'),
             'player/idle': Animation(load_sprites('entities/player/idle'), sprite_duration=6),
             'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
@@ -65,6 +66,8 @@ class Game:
             else:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
 
+        self.projectiles = []
+
         # Particle System
         self.particles = []
         self.leaf_Spawner = []
@@ -92,6 +95,21 @@ class Game:
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
             self.player.render(self.viewport, render_scroll)
+
+            # Projectile is represented as dictionary {pos, velocity, lifespan}
+            for projectile in self.projectiles.copy():
+                projectile['pos'][0] += projectile['velocity']
+                projectile['lifespan'] -= 1
+                bullet_sprite = self.assets['bullet']
+                self.viewport.blit(bullet_sprite, (projectile['pos'][0] - bullet_sprite.get_width() / 2 - render_scroll[0],
+                                                        projectile['pos'][1] - bullet_sprite.get_height() / 2 - render_scroll[1]))
+                if projectile['lifespan'] == 0:
+                    self.projectiles.remove(projectile)
+                elif self.tilemap.check_solid_tile(projectile['pos']):
+                    self.projectiles.remove(projectile)
+                elif abs(self.player.dash_timeframe) < 50:
+                    if self.player.get_collision_rect().collidepoint(projectile['pos']):
+                        self.projectiles.remove(projectile)
 
             for rect in self.leaf_Spawner:
                 if random.random() * 99999 < rect.width * rect.height:
