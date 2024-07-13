@@ -73,6 +73,15 @@ class Tilemap:
 
         return tiles
 
+    def check_solid_tiles(self, pos, flip):
+        """ Check for solid tiles down to either sides of the position based on flip """
+        grid_pos = self.__world_to_grid_pos((pos[0] - 7 if flip else pos[0] + 7, pos[1] + 23))
+        check_pos = str(grid_pos[0]) + ';' + str(grid_pos[1])
+        if check_pos in self.grid_tiles:
+            if self.grid_tiles[check_pos]['type'] in PHYSICS_TILES:
+                return True
+        return False
+
     def get_collision_rects(self, pos):
         """ Returns a list of collision rects of tiles around a position """
         collision_rects = []
