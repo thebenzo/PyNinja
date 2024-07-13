@@ -1,5 +1,7 @@
 import random
 
+import pygame
+
 from scripts.entities.PhysicsEntity import PhysicsEntity
 
 
@@ -29,3 +31,11 @@ class Enemy(PhysicsEntity):
 
     def render(self, surface, offset=(0, 0)):
         super().render(surface, offset=offset)
+
+        if self.flip:
+            surface.blit(pygame.transform.flip(self.game.assets['gun'], True, False),
+                         (self.get_collision_rect().centerx - 3 - self.game.assets['gun'].get_width() - offset[0],
+                          self.get_collision_rect().centery - offset[1]))
+        else:
+            surface.blit(self.game.assets['gun'], (self.get_collision_rect().centerx + 3 - offset[0],
+                         self.get_collision_rect().centery - offset[1]))

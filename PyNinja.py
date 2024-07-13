@@ -34,6 +34,7 @@ class Game:
             'clouds': load_sprites('clouds'),
             'decor': load_sprites('tiles/decor'),
             'spawners': load_sprites('tiles/spawners'),
+            'gun': load_sprite('gun.png'),
             'large_decor': load_sprites('tiles/large_decor'),
             'player/idle': Animation(load_sprites('entities/player/idle'), sprite_duration=6),
             'player/run': Animation(load_sprites('entities/player/run'), sprite_duration=4),
