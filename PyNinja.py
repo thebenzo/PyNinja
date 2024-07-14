@@ -89,8 +89,11 @@ class Game:
             self.tilemap.render(self.viewport, render_scroll)
 
             for enemy in self.enemies.copy():
-                enemy.update(self.tilemap, (0, 0))
+                kill = enemy.update(self.tilemap, (0, 0))
                 enemy.render(self.viewport, render_scroll)
+
+                if kill:
+                    self.enemies.remove(enemy)
 
             # Booleans implicitly converts to integers when arithmetic operation are performed on them
             self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))

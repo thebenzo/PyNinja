@@ -37,6 +37,10 @@ class Enemy(PhysicsEntity):
         else:
             self.set_animation_state('idle')
 
+        if abs(self.game.player.dash_timeframe) >= 50:
+            if self.get_collision_rect().colliderect(self.game.player.get_collision_rect()):
+                return True
+
     def render(self, surface, offset=(0, 0)):
         super().render(surface, offset=offset)
 
