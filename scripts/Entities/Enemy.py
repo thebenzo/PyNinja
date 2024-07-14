@@ -1,8 +1,10 @@
 import random
+import math
 
 import pygame
 
 from scripts.entities.PhysicsEntity import PhysicsEntity
+from scripts.Spark import Spark
 
 
 class Enemy(PhysicsEntity):
@@ -25,8 +27,12 @@ class Enemy(PhysicsEntity):
                 if abs(distance[1] < 16):
                     if distance[0] < 0 and self.flip:
                         self.game.projectiles.append({'pos': [self.get_collision_rect().centerx - 7, self.get_collision_rect().centery], 'velocity': -1.5, 'lifespan': 360})
+                        for i in range(4):
+                            self.game.sparks.append(Spark(self.game.projectiles[-1]['pos'], random.random() - 0.5 + math.pi, random.random() + 2))
                     elif distance[0] > 0 and not self.flip:
                         self.game.projectiles.append({'pos': [self.get_collision_rect().centerx + 7, self.get_collision_rect().centery], 'velocity': 1.5, 'lifespan': 360})
+                        for i in range(4):
+                            self.game.sparks.append(Spark(self.game.projectiles[-1]['pos'], random.random() - 0.5, random.random() + 2))
         elif random.random() < 0.01:
             self.walking_timeframe = random.randint(30, 120)
 

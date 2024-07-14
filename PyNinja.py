@@ -10,6 +10,7 @@ from scripts.Cloud import Clouds
 from scripts.Animation import Animation
 from scripts.Utils import load_sprite, load_sprites
 from scripts.ParticleSystem import Particle
+from scripts.Spark import Spark
 
 
 class Game:
@@ -73,6 +74,7 @@ class Game:
         self.leaf_Spawner = []
         for tree in self.tilemap.get_tiles([('large_decor', 2)], destroy=False):
             self.leaf_Spawner.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
+        self.sparks = []
 
     def run(self):
         """ Main game loop """
@@ -110,9 +112,17 @@ class Game:
                     self.projectiles.remove(projectile)
                 elif self.tilemap.check_solid_tile(projectile['pos']):
                     self.projectiles.remove(projectile)
+                    for i in range(4):
+                        self.sparks.append(Spark(projectile['pos'], random.random() - 0.5 + (math.pi if projectile['velocity'] > 0 else 0), random.random() + 2))
                 elif abs(self.player.dash_timeframe) < 50:
                     if self.player.get_collision_rect().collidepoint(projectile['pos']):
                         self.projectiles.remove(projectile)
+
+            for spark in self.sparks.copy():
+                kill = spark.update()
+                spark.render(self.viewport, offset=render_scroll)
+                if kill:
+                    self.sparks.remove(spark)
 
             for rect in self.leaf_Spawner:
                 if random.random() * 99999 < rect.width * rect.height:
