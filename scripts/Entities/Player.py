@@ -10,6 +10,8 @@ class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__('player', game, pos, size)
 
+        self.dead = False
+
         self.airborne_time = 0
         self.jump_velocity = 2.6
         self.jump_count = 2

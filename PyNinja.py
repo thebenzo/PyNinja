@@ -48,7 +48,7 @@ class Game:
             'particle/particle': Animation(load_sprites('particles/particle'), sprite_duration=6, loop=False)
         }
 
-        self.player = Player(self, (100, 50), (8, 15))
+        self.player = Player(self, (200, 50), (8, 15))
 
         # Movement state on x-axis
         self.movement_x = [False, False]
@@ -97,9 +97,10 @@ class Game:
                 if kill:
                     self.enemies.remove(enemy)
 
-            # Booleans implicitly converts to integers when arithmetic operation are performed on them
-            self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
-            self.player.render(self.viewport, render_scroll)
+            if not self.player.dead:
+                # Booleans implicitly converts to integers when arithmetic operation are performed on them
+                self.player.update(self.tilemap, (self.movement_x[1] - self.movement_x[0], 0))
+                self.player.render(self.viewport, render_scroll)
 
             # Projectile is represented as dictionary {pos, velocity, lifespan}
             for projectile in self.projectiles.copy():
@@ -117,6 +118,13 @@ class Game:
                 elif abs(self.player.dash_timeframe) < 50:
                     if self.player.get_collision_rect().collidepoint(projectile['pos']):
                         self.projectiles.remove(projectile)
+                        self.player.dead = True
+                        for i in range(30):
+                            angle = random.random() * math.pi * 2
+                            speed = random.random() * 5
+                            self.sparks.append(Spark(self.player.get_collision_rect().center, angle, 2 + random.random()))
+                            self.particles.append(Particle(self, 'particle', self.player.get_collision_rect().center,
+                                                           [math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], random.randint(0, 3)))
 
             for spark in self.sparks.copy():
                 kill = spark.update()
