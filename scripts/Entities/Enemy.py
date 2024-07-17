@@ -5,6 +5,7 @@ import pygame
 
 from scripts.entities.PhysicsEntity import PhysicsEntity
 from scripts.Spark import Spark
+from scripts.ParticleSystem import Particle
 
 
 class Enemy(PhysicsEntity):
@@ -45,6 +46,14 @@ class Enemy(PhysicsEntity):
 
         if abs(self.game.player.dash_timeframe) >= 50:
             if self.get_collision_rect().colliderect(self.game.player.get_collision_rect()):
+                for i in range(30):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 5
+                    self.game.sparks.append(Spark(self.get_collision_rect().center, angle, 2 + random.random()))
+                    self.game.particles.append(Particle(self.game, 'particle', self.get_collision_rect().center,
+                                                        [math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], random.randint(0, 3)))
+                self.game.sparks.append(Spark(self.get_collision_rect().center, 0, 5 + random.random()))
+                self.game.sparks.append(Spark(self.get_collision_rect().center, math.pi, 5 + random.random()))
                 return True
 
     def render(self, surface, offset=(0, 0)):
