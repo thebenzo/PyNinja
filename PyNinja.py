@@ -48,6 +48,21 @@ class Game:
             'particle/particle': Animation(load_sprites('particles/particle'), sprite_duration=6, loop=False)
         }
 
+        # Dictionary to store game sound effects mapped to their name string as key
+        self.sfx = {
+            'ambience': pygame.mixer.Sound('assets/sfx/ambience.wav'),
+            'dash': pygame.mixer.Sound('assets/sfx/dash.wav'),
+            'hit': pygame.mixer.Sound('assets/sfx/hit.wav'),
+            'jump': pygame.mixer.Sound('assets/sfx/jump.wav'),
+            'shoot': pygame.mixer.Sound('assets/sfx/shoot.wav')
+        }
+
+        self.sfx['ambience'].set_volume(0.3)
+        self.sfx['dash'].set_volume(0.2)
+        self.sfx['hit'].set_volume(0.8)
+        self.sfx['jump'].set_volume(0.6)
+        self.sfx['shoot'].set_volume(0.5)
+
         self.player = Player(self, (200, 50), (8, 15))
 
         # Movement state on x-axis
@@ -79,6 +94,11 @@ class Game:
 
     def run(self):
         """ Main game loop """
+        pygame.mixer.music.load('assets/music.wav')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+        self.sfx['ambience'].play(-1)
+
         while True:
             self.viewport.blit(self.assets['background'], (0, 0))
 
@@ -121,6 +141,7 @@ class Game:
                 elif abs(self.player.dash_timeframe) < 50:
                     if self.player.get_collision_rect().collidepoint(projectile['pos']):
                         self.projectiles.remove(projectile)
+                        self.sfx['hit'].play()
                         self.screen_shake_strength = max(16, self.screen_shake_strength)
                         self.player.dead = True
                         for i in range(30):

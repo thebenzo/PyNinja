@@ -27,10 +27,12 @@ class Enemy(PhysicsEntity):
                 # Check if player is at same y-level as enemy
                 if abs(distance[1] < 16):
                     if distance[0] < 0 and self.flip:
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append({'pos': [self.get_collision_rect().centerx - 7, self.get_collision_rect().centery], 'velocity': -1.5, 'lifespan': 360})
                         for i in range(4):
                             self.game.sparks.append(Spark(self.game.projectiles[-1]['pos'], random.random() - 0.5 + math.pi, random.random() + 2))
                     elif distance[0] > 0 and not self.flip:
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append({'pos': [self.get_collision_rect().centerx + 7, self.get_collision_rect().centery], 'velocity': 1.5, 'lifespan': 360})
                         for i in range(4):
                             self.game.sparks.append(Spark(self.game.projectiles[-1]['pos'], random.random() - 0.5, random.random() + 2))
@@ -46,6 +48,7 @@ class Enemy(PhysicsEntity):
 
         if abs(self.game.player.dash_timeframe) >= 50:
             if self.get_collision_rect().colliderect(self.game.player.get_collision_rect()):
+                self.game.sfx['hit'].play()
                 self.game.screen_shake_strength = max(18, self.game.screen_shake_strength)
                 for i in range(30):
                     angle = random.random() * math.pi * 2

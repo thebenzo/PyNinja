@@ -26,17 +26,20 @@ class Player(PhysicsEntity):
         """ Player jump action. Handles ground and wall jumps """
         if self.wall_slide:
             if self.flip and self.last_frame_movement[0] < 0:
+                self.game.sfx['jump'].play()
                 self.velocity[0] = 3.5
                 self.velocity[1] = -2.0
                 self.airborne_time = 5
                 self.jump_count = max(0, self.jump_count - 1)
             elif not self.flip and self.last_frame_movement[0] > 0:
+                self.game.sfx['jump'].play()
                 self.velocity[0] = -3.5
                 self.velocity[1] = -2.0
                 self.airborne_time = 5
                 self.jump_count = max(0, self.jump_count - 1)
 
         if self.jump_count > 0:
+            self.game.sfx['jump'].play()
             self.velocity[1] = -self.jump_velocity
             self.jump_count -= 1
             self.airborne_time = 5
@@ -44,6 +47,7 @@ class Player(PhysicsEntity):
     def dash(self):
         """ Make player dash in its facing direction """
         if self.dash_timeframe == 0:
+            self.game.sfx['dash'].play()
             if self.flip:
                 self.dash_timeframe = -60
             else:
