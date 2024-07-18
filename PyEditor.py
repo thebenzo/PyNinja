@@ -30,19 +30,25 @@ class Editor:
             'large_decor': load_sprites('tiles/large_decor'),
         }
 
+        self.tilemap = Tilemap(self)
+
         # Movement state on both axes [Left, Right, Up, Down]
         self.movement = [False, False, False, False]
 
         # Camera
         self.camera_scroll = [0, 0]
-
-        self.tilemap = Tilemap(self)
+        self.scroll_speed = 2
 
     def run(self):
         """ Main game loop """
         while True:
             self.window.fill((0, 0, 0))
             self.viewport.blit(self.assets['background'], (0, 0))
+
+            self.camera_scroll[0] += (self.movement[1] - self.movement[0]) * self.scroll_speed
+            self.camera_scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_speed
+            render_scroll = (int(self.camera_scroll[0]), int(self.camera_scroll[1]))
+            self.tilemap.render(self.viewport, render_scroll)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
