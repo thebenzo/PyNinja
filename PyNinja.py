@@ -55,6 +55,7 @@ class Game:
 
         # Camera
         self.camera_scroll = [0, 0]
+        self.screen_shake_strength = 0
 
         self.tilemap = Tilemap(self)
 
@@ -80,6 +81,8 @@ class Game:
         """ Main game loop """
         while True:
             self.viewport.blit(self.assets['background'], (0, 0))
+
+            self.screen_shake_strength = max(0, self.screen_shake_strength - 1)
 
             self.camera_scroll[0] += (self.player.get_collision_rect().centerx - self.viewport.get_width() / 2 - self.camera_scroll[0]) / 30
             self.camera_scroll[1] += (self.player.get_collision_rect().centery - self.viewport.get_height() / 2 - self.camera_scroll[1]) / 30
@@ -118,6 +121,7 @@ class Game:
                 elif abs(self.player.dash_timeframe) < 50:
                     if self.player.get_collision_rect().collidepoint(projectile['pos']):
                         self.projectiles.remove(projectile)
+                        self.screen_shake_strength = max(16, self.screen_shake_strength)
                         self.player.dead = True
                         for i in range(30):
                             angle = random.random() * math.pi * 2
@@ -165,8 +169,11 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+            screen_shake_offset = (random.random() * self.screen_shake_strength - self.screen_shake_strength / 2,
+                                   random.random() * self.screen_shake_strength - self.screen_shake_strength / 2)
+
             # Viewport is rendered in the main window and is scaled to match its size to mimic a zoomed-in effect
-            self.window.blit(pygame.transform.scale(self.viewport, self.window.get_size()), (0, 0))
+            self.window.blit(pygame.transform.scale(self.viewport, self.window.get_size()), screen_shake_offset)
 
             pygame.display.update()
             self.clock.tick(60)

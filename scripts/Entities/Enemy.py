@@ -46,6 +46,7 @@ class Enemy(PhysicsEntity):
 
         if abs(self.game.player.dash_timeframe) >= 50:
             if self.get_collision_rect().colliderect(self.game.player.get_collision_rect()):
+                self.game.screen_shake_strength = max(18, self.game.screen_shake_strength)
                 for i in range(30):
                     angle = random.random() * math.pi * 2
                     speed = random.random() * 5
