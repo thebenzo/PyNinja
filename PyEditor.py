@@ -19,15 +19,19 @@ class Editor:
 
         self.clock = pygame.time.Clock()
 
+        self.font = pygame.font.Font('assets/CascadiaCode-Regular.ttf', 14)
+
+        self.level = 0
+
+        self.background = load_sprite('background.png')
+
         # Dictionary to store game asset objects mapped to their name string as key
         self.assets = {
-            'background': load_sprite('background.png'),
             'grass': load_sprites('tiles/grass'),
             'stone': load_sprites('tiles/stone'),
-            'clouds': load_sprites('clouds'),
             'decor': load_sprites('tiles/decor'),
             'spawners': load_sprites('tiles/spawners'),
-            'large_decor': load_sprites('tiles/large_decor'),
+            'large_decor': load_sprites('tiles/large_decor')
         }
 
         self.tilemap = Tilemap(self)
@@ -42,13 +46,29 @@ class Editor:
     def run(self):
         """ Main game loop """
         while True:
-            self.window.fill((0, 0, 0))
-            self.viewport.blit(self.assets['background'], (0, 0))
+            self.window.fill((144, 201, 120))
+            self.viewport.blit(self.background, (0, 0))
+
+            level_text = f'map{self.level}.json'
+            level_text_surface = self.font.render(level_text, True, (30, 30, 30))
+            self.window.blit(level_text_surface, (840 / 2 - level_text_surface.get_width() / 2, 4))
 
             self.camera_scroll[0] += (self.movement[1] - self.movement[0]) * self.scroll_speed
             self.camera_scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_speed
             render_scroll = (int(self.camera_scroll[0]), int(self.camera_scroll[1]))
             self.tilemap.render(self.viewport, render_scroll)
+
+            col, row = 0, 0
+            for tile_group in list(self.assets):
+                font_surface = self.font.render(tile_group + ': ', True, (30, 30, 30))
+                self.window.blit(font_surface, (16 + col, 676 + row))
+                col += font_surface.get_width() + 10
+                for i in range(len(self.assets[tile_group])):
+                    sprite = pygame.transform.scale(self.assets[tile_group][i], (self.assets[tile_group][i].get_width() * 2, self.assets[tile_group][i].get_height() * 2))
+                    self.window.blit(sprite, (16 + col, 670 + row))
+                    col += sprite.get_width() + 20
+                row += sprite.get_height() + 15
+                col = 0
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -73,8 +93,9 @@ class Editor:
                     pygame.quit()
                     sys.exit()
 
+            pygame.draw.rect(self.window, (50, 50, 50), pygame.Rect(12, 22, 848, 638))
             # Viewport is rendered in the main window and is scaled to match its size to mimic a zoomed-in effect
-            self.window.blit(pygame.transform.scale(self.viewport, (840, 630)), (16, 16))
+            self.window.blit(pygame.transform.scale(self.viewport, (840, 630)), (16, 26))
 
             pygame.display.update()
             self.clock.tick(60)
