@@ -11,11 +11,15 @@ class Editor:
         pygame.init()
 
         # Set game window resolution and title
-        self.window = pygame.display.set_mode((872, 960))
+        self.window_size = (872, 960)
+        self.window = pygame.display.set_mode(self.window_size)
         pygame.display.set_caption('PyEditor')
 
         # Game is rendered on this surface, and it's later scaled to match windows size
-        self.viewport = pygame.Surface((320, 240))
+        self.viewport_size = (320, 240)
+        self.scaled_viewport_size = (840, 630)
+        self.viewport_pos = (16, 26)
+        self.viewport = pygame.Surface(self.viewport_size)
 
         self.clock = pygame.time.Clock()
 
@@ -60,6 +64,15 @@ class Editor:
             self.tilemap.render(self.viewport, render_scroll)
 
             mouse_pos = pygame.mouse.get_pos()
+
+            viewport_rect = pygame.Rect(self.viewport_pos, self.scaled_viewport_size)
+            viewport_mouse_x = (mouse_pos[0] - self.viewport_pos[0]) * self.viewport_size[0] / self.scaled_viewport_size[0]
+            viewport_mouse_y = (mouse_pos[1] - self.viewport_pos[1]) * self.viewport_size[1] / self.scaled_viewport_size[1]
+
+            if self.selected_tile_sprite and viewport_rect.collidepoint(mouse_pos):
+                ghost_tile = self.selected_tile_sprite.copy()
+                ghost_tile.set_alpha(150)
+                self.viewport.blit(ghost_tile, (viewport_mouse_x - ghost_tile.get_width() / 2, viewport_mouse_y - ghost_tile.get_height() / 2))
 
             col, row = 0, 0
             for tile_group in list(self.assets):
@@ -110,7 +123,7 @@ class Editor:
 
             pygame.draw.rect(self.window, (50, 50, 50), pygame.Rect(12, 22, 848, 638))
             # Viewport is rendered in the main window and is scaled to match its size to mimic a zoomed-in effect
-            self.window.blit(pygame.transform.scale(self.viewport, (840, 630)), (16, 26))
+            self.window.blit(pygame.transform.scale(self.viewport, self.scaled_viewport_size), self.viewport_pos)
 
             pygame.display.update()
             self.clock.tick(60)
