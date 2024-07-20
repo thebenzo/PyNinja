@@ -35,6 +35,7 @@ class Editor:
         }
 
         self.tilemap = Tilemap(self)
+        self.selected_tile_sprite = None
 
         # Movement state on both axes [Left, Right, Up, Down]
         self.movement = [False, False, False, False]
@@ -58,6 +59,8 @@ class Editor:
             render_scroll = (int(self.camera_scroll[0]), int(self.camera_scroll[1]))
             self.tilemap.render(self.viewport, render_scroll)
 
+            mouse_pos = pygame.mouse.get_pos()
+
             col, row = 0, 0
             for tile_group in list(self.assets):
                 font_surface = self.font.render(tile_group + ': ', True, (30, 30, 30))
@@ -65,10 +68,18 @@ class Editor:
                 col += font_surface.get_width() + 10
                 for i in range(len(self.assets[tile_group])):
                     sprite = pygame.transform.scale(self.assets[tile_group][i], (self.assets[tile_group][i].get_width() * 2, self.assets[tile_group][i].get_height() * 2))
+                    sprite_rect = pygame.Rect(16 + col, 670 + row, sprite.get_width(), sprite.get_height())
                     self.window.blit(sprite, (16 + col, 670 + row))
+                    if sprite_rect.collidepoint(mouse_pos):
+                        if pygame.mouse.get_pressed()[0]:
+                            self.selected_tile_sprite = self.assets[tile_group][i]
+                            selected_sprite_rect = sprite_rect
                     col += sprite.get_width() + 20
                 row += sprite.get_height() + 15
                 col = 0
+
+            if self.selected_tile_sprite:
+                pygame.draw.rect(self.window, (200, 25, 25), selected_sprite_rect, 3)
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -80,6 +91,10 @@ class Editor:
                         self.movement[2] = True
                     if event.key == pygame.K_s:
                         self.movement[3] = True
+                    if event.key == pygame.K_UP:
+                        self.level += 1
+                    if event.key == pygame.K_DOWN:
+                        self.level = max(self.level - 1, 0)
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
