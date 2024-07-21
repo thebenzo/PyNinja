@@ -39,10 +39,14 @@ class Editor:
         }
 
         self.tilemap = Tilemap(self)
-        self.selected_tile_sprite = None
+
+        self.selected_tile = None
 
         # Movement state on both axes [Left, Right, Up, Down]
         self.movement = [False, False, False, False]
+
+        self.left_clicking = False
+        self.right_clicking = False
 
         # Camera
         self.camera_scroll = [0, 0]
@@ -54,7 +58,7 @@ class Editor:
             self.window.fill((144, 201, 120))
             self.viewport.blit(self.background, (0, 0))
 
-            level_text = f'map{self.level}.json'
+            level_text = f'map{self.level}.json [Use up/down arrow keys to change current map]'
             level_text_surface = self.font.render(level_text, True, (30, 30, 30))
             self.window.blit(level_text_surface, (840 / 2 - level_text_surface.get_width() / 2, 4))
 
@@ -64,15 +68,6 @@ class Editor:
             self.tilemap.render(self.viewport, render_scroll)
 
             mouse_pos = pygame.mouse.get_pos()
-
-            viewport_rect = pygame.Rect(self.viewport_pos, self.scaled_viewport_size)
-            viewport_mouse_x = (mouse_pos[0] - self.viewport_pos[0]) * self.viewport_size[0] / self.scaled_viewport_size[0]
-            viewport_mouse_y = (mouse_pos[1] - self.viewport_pos[1]) * self.viewport_size[1] / self.scaled_viewport_size[1]
-
-            if self.selected_tile_sprite and viewport_rect.collidepoint(mouse_pos):
-                ghost_tile = self.selected_tile_sprite.copy()
-                ghost_tile.set_alpha(150)
-                self.viewport.blit(ghost_tile, (viewport_mouse_x - ghost_tile.get_width() / 2, viewport_mouse_y - ghost_tile.get_height() / 2))
 
             col, row = 0, 0
             for tile_group in list(self.assets):
@@ -85,14 +80,31 @@ class Editor:
                     self.window.blit(sprite, (16 + col, 670 + row))
                     if sprite_rect.collidepoint(mouse_pos):
                         if pygame.mouse.get_pressed()[0]:
-                            self.selected_tile_sprite = self.assets[tile_group][i]
-                            selected_sprite_rect = sprite_rect
+                            self.selected_tile = {'sprite': self.assets[tile_group][i], 'type': tile_group, 'variant': i, 'rect': sprite_rect}
                     col += sprite.get_width() + 20
                 row += sprite.get_height() + 15
                 col = 0
 
-            if self.selected_tile_sprite:
-                pygame.draw.rect(self.window, (200, 25, 25), selected_sprite_rect, 3)
+            viewport_rect = pygame.Rect(self.viewport_pos, self.scaled_viewport_size)
+            viewport_mouse_pos = ((mouse_pos[0] - self.viewport_pos[0]) * self.viewport_size[0] / self.scaled_viewport_size[0],
+                                  (mouse_pos[1] - self.viewport_pos[1]) * self.viewport_size[1] / self.scaled_viewport_size[1])
+
+            # Render ghost tile for the game viewport
+            if self.selected_tile and viewport_rect.collidepoint(mouse_pos):
+                ghost_tile = self.selected_tile['sprite'].copy()
+                ghost_tile.set_alpha(150)
+                self.viewport.blit(ghost_tile, (viewport_mouse_pos[0] - ghost_tile.get_width() / 2, viewport_mouse_pos[1] - ghost_tile.get_height() / 2))
+
+            # Draw border around selected tile
+            if self.selected_tile:
+                pygame.draw.rect(self.window, (200, 25, 25), self.selected_tile['rect'], 3)
+
+            # Place off-gird tiles
+            if self.left_clicking and self.selected_tile and viewport_rect.collidepoint(mouse_pos):
+                offgrid_tile_pos = (viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
+                                    viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2)
+                self.tilemap.offgrid_tiles.append({'type': self.selected_tile['type'], 'variant': self.selected_tile['variant'], 'pos': offgrid_tile_pos})
+                self.left_clicking = False
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -117,6 +129,16 @@ class Editor:
                         self.movement[2] = False
                     if event.key == pygame.K_s:
                         self.movement[3] = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.left_clicking = True
+                    if event.button == 3:
+                        self.right_clicking = True
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.left_clicking = False
+                    if event.button == 3:
+                        self.right_clicking = False
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
