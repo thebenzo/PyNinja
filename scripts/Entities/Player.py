@@ -61,6 +61,11 @@ class Player(PhysicsEntity):
             self.jump_count = 2
             self.airborne_time = 0
 
+        if self.airborne_time > 120:
+            if not self.dead:
+                self.game.screen_shake_strength = max(16, self.game.screen_shake_strength)
+            self.dead = True
+
         self.wall_slide = False
         if (self.collision_states['right'] or self.collision_states['left']) and self.airborne_time > 4:
             self.wall_slide = True

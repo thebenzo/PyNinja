@@ -1,4 +1,5 @@
 import sys
+import os
 import math
 import random
 import pygame
@@ -86,6 +87,7 @@ class Game:
         self.sparks = []
 
         self.respawn_timer = 0
+        self.transition_timer = 0
 
         self.level = 0
         self.load_level(self.level)
@@ -99,6 +101,7 @@ class Game:
         self.camera_scroll = [0, 0]
 
         self.respawn_timer = 0
+        self.transition_timer = -30
 
         self.leaf_Spawner = []
         for tree in self.tilemap.get_tiles([('large_decor', 2)], destroy=False):
@@ -136,9 +139,17 @@ class Game:
             if self.player.dead:
                 self.respawn_timer += 1
                 if self.respawn_timer >= 10:
-                    pass
+                    self.transition_timer = min(30, self.transition_timer + 1)
                 if self.respawn_timer > 40:
                     self.load_level(self.level)
+
+            if not len(self.enemies):
+                self.transition_timer += 1
+                if self.transition_timer > 30:
+                    self.level = min(self.level + 1, len(os.listdir('assets/maps')) - 1)
+                    self.load_level(self.level)
+            if self.transition_timer < 0:
+                self.transition_timer += 1
 
             for enemy in self.enemies.copy():
                 kill = enemy.update(self.tilemap, (0, 0))
@@ -216,6 +227,12 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+            if self.transition_timer:
+                transition_surf = pygame.Surface(self.viewport.get_size())
+                pygame.draw.circle(transition_surf, (255, 255, 255), (self.viewport.get_width() // 2, self.viewport.get_height() // 2), (30 - abs(self.transition_timer)) * 8)
+                transition_surf.set_colorkey((255, 255, 255))
+                self.viewport.blit(transition_surf, (0, 0))
 
             screen_shake_offset = (random.random() * self.screen_shake_strength - self.screen_shake_strength / 2,
                                    random.random() * self.screen_shake_strength - self.screen_shake_strength / 2)
