@@ -10,9 +10,10 @@ class Editor:
         """ Initialize pygame and setup game properties """
         pygame.init()
 
-        # Set game window resolution and title
+        # Set game window resolution, title and icon
         self.window_size = (872, 960)
         self.window = pygame.display.set_mode(self.window_size)
+        pygame.display.set_icon(pygame.image.load('assets/images/icon.png'))
         pygame.display.set_caption('PyEditor')
 
         # Game is rendered on this surface, and it's later scaled to match windows size
