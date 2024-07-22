@@ -47,6 +47,7 @@ class Editor:
 
         self.left_clicking = False
         self.right_clicking = False
+        self.snap_to_grid = False
 
         # Camera
         self.camera_scroll = [0, 0]
@@ -89,21 +90,37 @@ class Editor:
             viewport_mouse_pos = ((mouse_pos[0] - self.viewport_pos[0]) * self.viewport_size[0] / self.scaled_viewport_size[0],
                                   (mouse_pos[1] - self.viewport_pos[1]) * self.viewport_size[1] / self.scaled_viewport_size[1])
 
+            if viewport_rect.collidepoint(mouse_pos):
+                pygame.mouse.set_visible(False)
+            else:
+                pygame.mouse.set_visible(True)
+
             # Render ghost tile for the game viewport
             if self.selected_tile and viewport_rect.collidepoint(mouse_pos):
                 ghost_tile = self.selected_tile['sprite'].copy()
                 ghost_tile.set_alpha(150)
-                self.viewport.blit(ghost_tile, (viewport_mouse_pos[0] - ghost_tile.get_width() / 2, viewport_mouse_pos[1] - ghost_tile.get_height() / 2))
+                ghost_tile_pos = (viewport_mouse_pos[0] - ghost_tile.get_width() / 2, viewport_mouse_pos[1] - ghost_tile.get_height() / 2)
+                ghost_tile_grid_pos = self.tilemap.world_to_grid_pos(ghost_tile_pos)
+                self.viewport.blit(ghost_tile, self.tilemap.grid_to_world_pos(ghost_tile_grid_pos) if self.snap_to_grid else ghost_tile_pos)
 
             # Draw border around selected tile
             if self.selected_tile:
                 pygame.draw.rect(self.window, (200, 25, 25), self.selected_tile['rect'], 3)
 
             # Place off-gird tiles
-            if self.left_clicking and self.selected_tile and viewport_rect.collidepoint(mouse_pos):
+            if not self.snap_to_grid and self.left_clicking and self.selected_tile and viewport_rect.collidepoint(mouse_pos):
                 offgrid_tile_pos = (viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
                                     viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2)
-                self.tilemap.offgrid_tiles.append({'type': self.selected_tile['type'], 'variant': self.selected_tile['variant'], 'pos': offgrid_tile_pos})
+                offgrid_tile = {'type': self.selected_tile['type'], 'variant': self.selected_tile['variant'], 'pos': offgrid_tile_pos}
+                self.tilemap.offgrid_tiles.append(offgrid_tile)
+                self.left_clicking = False
+
+            # Place grid tiles
+            if self.snap_to_grid and self.left_clicking and self.selected_tile and viewport_rect.collidepoint(mouse_pos):
+                grid_tile_pos = self.tilemap.world_to_grid_pos((viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
+                                                                viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2))
+                grid_tile = {'type': self.selected_tile['type'], 'variant': self.selected_tile['variant'], 'pos': grid_tile_pos}
+                self.tilemap.grid_tiles[str(grid_tile_pos[0]) + ';' + str(grid_tile_pos[1])] = grid_tile
                 self.left_clicking = False
 
             for event in pygame.event.get():
@@ -120,6 +137,8 @@ class Editor:
                         self.level += 1
                     if event.key == pygame.K_DOWN:
                         self.level = max(self.level - 1, 0)
+                    if event.key == pygame.K_g:
+                        self.snap_to_grid = not self.snap_to_grid
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
