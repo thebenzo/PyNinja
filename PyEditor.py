@@ -68,13 +68,20 @@ class Editor:
 
             save_info_text = 'lCTRL + S to save map'
             load_info_text = '(O) to load current map.'
+            auto_tile_info_text = '(SPACE) to auto-tile.'
             clear_info_text = 'Del to clear map.'
             save_info_text_surface = self.font.render(save_info_text, True, (30, 30, 30))
             load_info_text_surface = self.font.render(load_info_text, True, (30, 30, 30))
             clear_info_text_surface = self.font.render(clear_info_text, True, (30, 30, 30))
-            self.window.blit(save_info_text_surface, (self.window_size[0] - save_info_text_surface.get_width() - 16, 666 + save_info_text_surface.get_height()))
-            self.window.blit(load_info_text_surface, (self.window_size[0] - load_info_text_surface.get_width() - 16, 686 + load_info_text_surface.get_height() + 10))
-            self.window.blit(clear_info_text_surface, (self.window_size[0] - clear_info_text_surface.get_width() - 16, 706 + clear_info_text_surface.get_height() + 20))
+            auto_tile_info_text_surface = self.font.render(auto_tile_info_text, True, (30, 30, 30))
+            self.window.blit(save_info_text_surface, (self.window_size[0] - save_info_text_surface.get_width() - 16,
+                                                           740 + save_info_text_surface.get_height()))
+            self.window.blit(load_info_text_surface, (self.window_size[0] - load_info_text_surface.get_width() - 16,
+                                                           760 + load_info_text_surface.get_height() + 10))
+            self.window.blit(auto_tile_info_text_surface, (self.window_size[0] - auto_tile_info_text_surface.get_width() - 16,
+                                                                780 + auto_tile_info_text_surface.get_height() + 20))
+            self.window.blit(clear_info_text_surface, (self.window_size[0] - clear_info_text_surface.get_width() - 16,
+                                                            800 + clear_info_text_surface.get_height() + 30))
 
             self.camera_scroll[0] += (self.movement[1] - self.movement[0]) * self.scroll_speed
             self.camera_scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_speed
@@ -189,6 +196,8 @@ class Editor:
                             self.tilemap.load_map(f'assets/maps/map{self.level}.json')
                         except FileNotFoundError:
                             print(f'map{self.level}.json does not exist')
+                    if event.key == pygame.K_SPACE:
+                        self.tilemap.auto_tile()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False

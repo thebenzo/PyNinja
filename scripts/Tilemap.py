@@ -1,6 +1,19 @@
 import json
 import pygame
 
+AUTO_TILE_TYPES = {'grass', 'stone'}
+AUTO_TILE_MAP = {
+    tuple(sorted([(1, 0), (0, 1)])): 0,
+    tuple(sorted([(1, 0), (0, 1), (-1, 0)])): 1,
+    tuple(sorted([(-1, 0), (0, 1)])): 2,
+    tuple(sorted([(-1, 0), (0, -1), (0, 1)])): 3,
+    tuple(sorted([(-1, 0), (0, -1)])): 4,
+    tuple(sorted([(-1, 0), (0, -1), (1, 0)])): 5,
+    tuple(sorted([(1, 0), (0, -1)])): 6,
+    tuple(sorted([(1, 0), (0, -1), (0, 1)])): 7,
+    tuple(sorted([(1, 0), (-1, 0), (0, 1), (0, -1)])): 8,
+}
+
 
 class Tilemap:
     """ Class for tilemap of the game world made up of grid and offgrid tile """
@@ -34,6 +47,19 @@ class Tilemap:
             tile_sprite = self.game.assets[tile['type']][tile['variant']]
             tile_rect = pygame.Rect(world_pos[0] - offset[0], world_pos[1] - offset[1], tile_sprite.get_width(), tile_sprite.get_height())
             pygame.draw.rect(surf, (0, 0, 255), tile_rect, 1)
+
+    def auto_tile(self):
+        for key in self.grid_tiles:
+            tile = self.grid_tiles[key]
+            neighbors = set()
+            for shift in [(1, 0), (-1, 0), (0, -1), (0, 1)]:
+                check_tile = str(tile['pos'][0] + shift[0]) + ';' + str(tile['pos'][1] + shift[1])
+                if check_tile in self.grid_tiles:
+                    if self.grid_tiles[check_tile]['type'] == tile['type']:
+                        neighbors.add(shift)
+            neighbors = tuple(sorted(neighbors))
+            if (tile['type'] in AUTO_TILE_TYPES) and (neighbors in AUTO_TILE_MAP):
+                tile['variant'] = AUTO_TILE_MAP[neighbors]
 
     def save_map(self, path):
         """ Save map to a json file at path specified """
