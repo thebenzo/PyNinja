@@ -3,7 +3,7 @@ import math
 
 import pygame
 
-from scripts.entities.PhysicsEntity import PhysicsEntity
+from scripts.Entities.PhysicsEntity import PhysicsEntity
 from scripts.Spark import Spark
 from scripts.ParticleSystem import Particle
 

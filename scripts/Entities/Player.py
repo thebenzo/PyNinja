@@ -1,7 +1,7 @@
 import random
 import math
 
-from scripts.entities.PhysicsEntity import PhysicsEntity
+from scripts.Entities.PhysicsEntity import PhysicsEntity
 from scripts.ParticleSystem import Particle
 
 

@@ -4,8 +4,8 @@ import math
 import random
 import pygame
 
-from scripts.entities.Player import Player
-from scripts.entities.Enemy import Enemy
+from scripts.Entities.Player import Player
+from scripts.Entities.Enemy import Enemy
 from scripts.Tilemap import Tilemap
 from scripts.Cloud import Clouds
 from scripts.Animation import Animation
