@@ -20,6 +20,20 @@ class Tilemap:
         """ Returns grid position to a corresponding world position in pixels """
         return int(pos[0] // self.tile_size), int(pos[1] // self.tile_size)
 
+    def render_tile_rects(self, surf, offset=(0, 0)):
+        """ Render debug rects around tiles """
+        for tile in self.offgrid_tiles:
+            tile_sprite = self.game.assets[tile['type']][tile['variant']]
+            tile_rect = pygame.Rect(tile['pos'][0] - offset[0], tile['pos'][1] - offset[1], tile_sprite.get_width(), tile_sprite.get_height())
+            pygame.draw.rect(surf, (255, 255, 255), tile_rect, 1)
+
+        for tile_key in self.grid_tiles:
+            tile = self.grid_tiles[tile_key]
+            world_pos = self.grid_to_world_pos(tile['pos'])
+            tile_sprite = self.game.assets[tile['type']][tile['variant']]
+            tile_rect = pygame.Rect(world_pos[0] - offset[0], world_pos[1] - offset[1], tile_sprite.get_width(), tile_sprite.get_height())
+            pygame.draw.rect(surf, (0, 0, 255), tile_rect, 1)
+
     def render(self, surf, offset=(0, 0)):
         for tile in self.offgrid_tiles:
             surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))

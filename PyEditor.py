@@ -48,6 +48,7 @@ class Editor:
         self.left_clicking = False
         self.right_clicking = False
         self.snap_to_grid = False
+        self.debug_rects = False
 
         # Camera
         self.camera_scroll = [0, 0]
@@ -59,7 +60,7 @@ class Editor:
             self.window.fill((144, 201, 120))
             self.viewport.blit(self.background, (0, 0))
 
-            level_text = f'map{self.level}.json [Use up/down arrow keys to change current map]'
+            level_text = f'map{self.level}.json [Use ↑ or ↓ to change current map]'
             level_text_surface = self.font.render(level_text, True, (30, 30, 30))
             self.window.blit(level_text_surface, (840 / 2 - level_text_surface.get_width() / 2, 4))
 
@@ -67,6 +68,9 @@ class Editor:
             self.camera_scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_speed
             render_scroll = (int(self.camera_scroll[0]), int(self.camera_scroll[1]))
             self.tilemap.render(self.viewport, render_scroll)
+
+            if self.debug_rects:
+                self.tilemap.render_tile_rects(self.viewport, render_scroll)
 
             mouse_pos = pygame.mouse.get_pos()
 
@@ -90,7 +94,7 @@ class Editor:
             viewport_mouse_pos = ((mouse_pos[0] - self.viewport_pos[0]) * self.viewport_size[0] / self.scaled_viewport_size[0],
                                   (mouse_pos[1] - self.viewport_pos[1]) * self.viewport_size[1] / self.scaled_viewport_size[1])
 
-            if viewport_rect.collidepoint(mouse_pos):
+            if self.selected_tile and viewport_rect.collidepoint(mouse_pos):
                 pygame.mouse.set_visible(False)
             else:
                 pygame.mouse.set_visible(True)
@@ -123,6 +127,24 @@ class Editor:
                 self.tilemap.grid_tiles[str(grid_tile_pos[0]) + ';' + str(grid_tile_pos[1])] = grid_tile
                 self.left_clicking = False
 
+            if self.right_clicking and viewport_rect.collidepoint(mouse_pos):
+                # Remove grid tiles from the tilemap
+                grid_tile_pos = self.tilemap.world_to_grid_pos((viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
+                                                                viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2))
+                tilemap_key = str(grid_tile_pos[0]) + ';' + str(grid_tile_pos[1])
+                if tilemap_key in self.tilemap.grid_tiles:
+                    del self.tilemap.grid_tiles[tilemap_key]
+
+                # Remove offgrid tiles from the tilemap
+                offgrid_tile_pos = (viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
+                                    viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2)
+                for tile in self.tilemap.offgrid_tiles.copy():
+                    tile_sprite = self.assets[tile['type']][tile['variant']]
+                    tile_rect = pygame.Rect(tile['pos'][0] - self.camera_scroll[0], tile['pos'][1] - self.camera_scroll[1],
+                                            tile_sprite.get_width(), tile_sprite.get_height())
+                    if tile_rect.collidepoint(offgrid_tile_pos):
+                        self.tilemap.offgrid_tiles.remove(tile)
+
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
@@ -139,6 +161,8 @@ class Editor:
                         self.level = max(self.level - 1, 0)
                     if event.key == pygame.K_g:
                         self.snap_to_grid = not self.snap_to_grid
+                    if event.key == pygame.K_v:
+                        self.debug_rects = not self.debug_rects
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
@@ -165,6 +189,11 @@ class Editor:
             pygame.draw.rect(self.window, (50, 50, 50), pygame.Rect(12, 22, 848, 638))
             # Viewport is rendered in the main window and is scaled to match its size to mimic a zoomed-in effect
             self.window.blit(pygame.transform.scale(self.viewport, self.scaled_viewport_size), self.viewport_pos)
+
+            snap_to_grid_status_text = self.font.render(f'Snap to grid (G): {self.snap_to_grid}', True, (0, 0, 0))
+            debug_status_text = self.font.render(f'Debug Rects (V): {self.debug_rects}', True, (0, 0, 0))
+            self.window.blit(snap_to_grid_status_text, (self.viewport_pos[0] + 10, self.viewport_pos[1] + 10))
+            self.window.blit(debug_status_text, (self.viewport_pos[0] + self.scaled_viewport_size[0] - debug_status_text.get_width() - 10, self.viewport_pos[1] + 10))
 
             pygame.display.update()
             self.clock.tick(60)
