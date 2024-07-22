@@ -47,8 +47,10 @@ class Editor:
 
         self.left_clicking = False
         self.right_clicking = False
+        self.ctrl = False
         self.snap_to_grid = False
         self.debug_rects = False
+        self.map_changed = False
 
         # Camera
         self.camera_scroll = [0, 0]
@@ -60,8 +62,8 @@ class Editor:
             self.window.fill((144, 201, 120))
             self.viewport.blit(self.background, (0, 0))
 
-            level_text = f'map{self.level}.json [Use ↑ or ↓ to change current map]'
-            level_text_surface = self.font.render(level_text, True, (30, 30, 30))
+            level_text = f'{'*' if self.map_changed else ''}map{self.level}.json [Use ↑ or ↓ to change current map]'
+            level_text_surface = self.font.render(level_text, True, (255, 25, 25) if self.map_changed else (30, 30, 30))
             self.window.blit(level_text_surface, (840 / 2 - level_text_surface.get_width() / 2, 4))
 
             self.camera_scroll[0] += (self.movement[1] - self.movement[0]) * self.scroll_speed
@@ -118,6 +120,7 @@ class Editor:
                 offgrid_tile = {'type': self.selected_tile['type'], 'variant': self.selected_tile['variant'], 'pos': offgrid_tile_pos}
                 self.tilemap.offgrid_tiles.append(offgrid_tile)
                 self.left_clicking = False
+                self.map_changed = True
 
             # Place grid tiles
             if self.snap_to_grid and self.left_clicking and self.selected_tile and viewport_rect.collidepoint(mouse_pos):
@@ -126,24 +129,27 @@ class Editor:
                 grid_tile = {'type': self.selected_tile['type'], 'variant': self.selected_tile['variant'], 'pos': grid_tile_pos}
                 self.tilemap.grid_tiles[str(grid_tile_pos[0]) + ';' + str(grid_tile_pos[1])] = grid_tile
                 self.left_clicking = False
+                self.map_changed = True
 
             if self.right_clicking and viewport_rect.collidepoint(mouse_pos):
                 # Remove grid tiles from the tilemap
-                grid_tile_pos = self.tilemap.world_to_grid_pos((viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
-                                                                viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2))
+                grid_tile_pos = self.tilemap.world_to_grid_pos((viewport_mouse_pos[0] + self.camera_scroll[0] - 16,
+                                                                viewport_mouse_pos[1] + self.camera_scroll[1] - 16))
                 tilemap_key = str(grid_tile_pos[0]) + ';' + str(grid_tile_pos[1])
                 if tilemap_key in self.tilemap.grid_tiles:
                     del self.tilemap.grid_tiles[tilemap_key]
+                    self.map_changed = True
 
                 # Remove offgrid tiles from the tilemap
-                offgrid_tile_pos = (viewport_mouse_pos[0] + self.camera_scroll[0] - self.selected_tile['sprite'].get_width() / 2,
-                                    viewport_mouse_pos[1] + self.camera_scroll[1] - self.selected_tile['sprite'].get_height() / 2)
+                offgrid_tile_pos = (viewport_mouse_pos[0] + self.camera_scroll[0],
+                                    viewport_mouse_pos[1] + self.camera_scroll[1])
                 for tile in self.tilemap.offgrid_tiles.copy():
                     tile_sprite = self.assets[tile['type']][tile['variant']]
                     tile_rect = pygame.Rect(tile['pos'][0] - self.camera_scroll[0], tile['pos'][1] - self.camera_scroll[1],
                                             tile_sprite.get_width(), tile_sprite.get_height())
                     if tile_rect.collidepoint(offgrid_tile_pos):
                         self.tilemap.offgrid_tiles.remove(tile)
+                        self.map_changed = True
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -163,6 +169,16 @@ class Editor:
                         self.snap_to_grid = not self.snap_to_grid
                     if event.key == pygame.K_v:
                         self.debug_rects = not self.debug_rects
+                    if event.key == pygame.K_LCTRL:
+                        self.ctrl = True
+                    if self.ctrl and event.key == pygame.K_s:
+                        self.tilemap.save_map(f'assets/maps/map{self.level}.json')
+                        self.map_changed = False
+                    if event.key == pygame.K_o:
+                        try:
+                            self.tilemap.load_map(f'assets/maps/map{self.level}.json')
+                        except FileNotFoundError:
+                            print(f'map{self.level}.json does not exist')
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
@@ -172,6 +188,8 @@ class Editor:
                         self.movement[2] = False
                     if event.key == pygame.K_s:
                         self.movement[3] = False
+                    if event.key == pygame.K_LCTRL:
+                        self.ctrl = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.left_clicking = True

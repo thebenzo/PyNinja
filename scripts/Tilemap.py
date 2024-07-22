@@ -1,3 +1,4 @@
+import json
 import pygame
 
 
@@ -33,6 +34,22 @@ class Tilemap:
             tile_sprite = self.game.assets[tile['type']][tile['variant']]
             tile_rect = pygame.Rect(world_pos[0] - offset[0], world_pos[1] - offset[1], tile_sprite.get_width(), tile_sprite.get_height())
             pygame.draw.rect(surf, (0, 0, 255), tile_rect, 1)
+
+    def save_map(self, path):
+        """ Save map to a json file at path specified """
+        map_file = open(path, 'w')
+        json.dump({'tile_size': self.tile_size, 'grid_tiles': self.grid_tiles, 'offgrid_tiles': self.offgrid_tiles}, map_file)
+        map_file.close()
+
+    def load_map(self, path):
+        """ load map data from a json file """
+        map_file = open(path, 'r')
+        map_data = json.load(map_file)
+        map_file.close()
+
+        self.tile_size = map_data['tile_size']
+        self.grid_tiles = map_data['grid_tiles']
+        self.offgrid_tiles = map_data['offgrid_tiles']
 
     def render(self, surf, offset=(0, 0)):
         for tile in self.offgrid_tiles:
