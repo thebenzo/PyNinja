@@ -19,8 +19,9 @@ class Game:
         """ Initialize pygame and setup game properties """
         pygame.init()
 
-        # Set game window resolution and title
+        # Set game window resolution, title and icon
         self.window = pygame.display.set_mode((840, 630))
+        pygame.display.set_icon(pygame.image.load('assets/images/icon.png'))
         pygame.display.set_caption('PyNinja')
 
         # Game is rendered on this surface, and it's later scaled to match windows size
