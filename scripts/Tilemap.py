@@ -1,3 +1,4 @@
+import json
 import pygame
 
 NEIGHBOUR_OFFSETS = [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (0, 0)]
@@ -15,25 +16,15 @@ class Tilemap:
         self.grid_tiles = {}
         self.offgrid_tiles = []
 
-        for i in range(6):
-            self.grid_tiles[str(3 + i) + ';10'] = {'type': 'grass', 'variant': 1, 'pos': (3 + i, 10)}
-        for i in range(8):
-            self.grid_tiles[str(8 + i) + ';13'] = {'type': 'grass', 'variant': 1, 'pos': (8 + i, 13)}
-        for i in range(12):
-            self.grid_tiles[str(18 + i) + ';16'] = {'type': 'grass', 'variant': 1, 'pos': (18 + i, 16)}
-        for i in range(4):
-            self.grid_tiles['12;' + str(9 + i)] = {'type': 'stone', 'variant': 1, 'pos': (12, 9 + i)}
+    def load_map(self, path):
+        """ load map data from a json file """
+        map_file = open(path, 'r')
+        map_data = json.load(map_file)
+        map_file.close()
 
-        self.offgrid_tiles.append({'type': 'decor', 'variant': 3, 'pos': (320.5, 240.0)})
-        self.offgrid_tiles.append({'type': 'decor', 'variant': 2, 'pos': (358.7, 240.0)})
-        self.offgrid_tiles.append({'type': 'decor', 'variant': 1, 'pos': (377.6, 240.0)})
-        self.offgrid_tiles.append({'type': 'large_decor', 'variant': 2, 'pos': (90.5, 120)})
-        self.offgrid_tiles.append({'type': 'large_decor', 'variant': 2, 'pos': (397.6, 213.0)})
-        # Player spawner
-        self.offgrid_tiles.append({'type': 'spawners', 'variant': 0, 'pos': (70.5, 120)})
-        # Enemy spawners
-        self.offgrid_tiles.append({'type': 'spawners', 'variant': 1, 'pos': (375.6, 213.0)})
-        self.offgrid_tiles.append({'type': 'spawners', 'variant': 1, 'pos': (90.5, 120)})
+        self.tile_size = map_data['tile_size']
+        self.grid_tiles = map_data['grid_tiles']
+        self.offgrid_tiles = map_data['offgrid_tiles']
 
     def __grid_to_world_pos(self, pos):
         """ Returns world position in pixels to a corresponding grid position """

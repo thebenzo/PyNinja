@@ -63,7 +63,7 @@ class Game:
         self.sfx['jump'].set_volume(0.6)
         self.sfx['shoot'].set_volume(0.5)
 
-        self.player = Player(self, (200, 50), (8, 15))
+        self.player = None
 
         # Movement state on x-axis
         self.movement_x = [False, False]
@@ -77,20 +77,40 @@ class Game:
         self.clouds = Clouds(self.assets['clouds'])
 
         self.enemies = []
-        for spawner in self.tilemap.get_tiles([('spawners', 0), ('spawners', 1)], destroy=True):
-            if spawner['variant'] == 0:
-                self.player.pos = list(spawner['pos'])
-            else:
-                self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
 
         self.projectiles = []
 
         # Particle System
         self.particles = []
         self.leaf_Spawner = []
+        self.sparks = []
+
+        self.respawn_timer = 0
+
+        self.level = 0
+        self.load_level(self.level)
+
+    def load_level(self, map_id):
+        self.tilemap.load_map(f'assets/maps/map{map_id}.json')
+
+        self.particles = []
+        self.sparks = []
+
+        self.camera_scroll = [0, 0]
+
+        self.respawn_timer = 0
+
+        self.leaf_Spawner = []
         for tree in self.tilemap.get_tiles([('large_decor', 2)], destroy=False):
             self.leaf_Spawner.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
-        self.sparks = []
+
+        self.enemies = []
+        for spawner in self.tilemap.get_tiles([('spawners', 0), ('spawners', 1)], destroy=True):
+            if spawner['variant'] == 0:
+                self.player = Player(self, list(spawner['pos']), (8, 15))
+                self.player.dead = False
+            else:
+                self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
 
     def run(self):
         """ Main game loop """
@@ -112,6 +132,13 @@ class Game:
             self.clouds.render(self.viewport, render_scroll)
 
             self.tilemap.render(self.viewport, render_scroll)
+
+            if self.player.dead:
+                self.respawn_timer += 1
+                if self.respawn_timer >= 10:
+                    pass
+                if self.respawn_timer > 40:
+                    self.load_level(self.level)
 
             for enemy in self.enemies.copy():
                 kill = enemy.update(self.tilemap, (0, 0))
