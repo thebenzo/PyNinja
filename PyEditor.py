@@ -74,14 +74,20 @@ class Editor:
             load_info_text_surface = self.font.render(load_info_text, True, (30, 30, 30))
             clear_info_text_surface = self.font.render(clear_info_text, True, (30, 30, 30))
             auto_tile_info_text_surface = self.font.render(auto_tile_info_text, True, (30, 30, 30))
-            self.window.blit(save_info_text_surface, (self.window_size[0] - save_info_text_surface.get_width() - 16,
+            self.window.blit(save_info_text_surface, (self.window_size[0] - save_info_text_surface.get_width() - 64,
                                                            740 + save_info_text_surface.get_height()))
-            self.window.blit(load_info_text_surface, (self.window_size[0] - load_info_text_surface.get_width() - 16,
+            self.window.blit(load_info_text_surface, (self.window_size[0] - load_info_text_surface.get_width() - 64,
                                                            760 + load_info_text_surface.get_height() + 10))
-            self.window.blit(auto_tile_info_text_surface, (self.window_size[0] - auto_tile_info_text_surface.get_width() - 16,
+            self.window.blit(auto_tile_info_text_surface, (self.window_size[0] - auto_tile_info_text_surface.get_width() - 64,
                                                                 780 + auto_tile_info_text_surface.get_height() + 20))
-            self.window.blit(clear_info_text_surface, (self.window_size[0] - clear_info_text_surface.get_width() - 16,
+            self.window.blit(clear_info_text_surface, (self.window_size[0] - clear_info_text_surface.get_width() - 64,
                                                             800 + clear_info_text_surface.get_height() + 30))
+
+            width = self.window_size[0] - 620
+            height = self.window_size[1] - 800
+            info_border_rect = pygame.Rect(self.window_size[0] - 280,
+                                           self.window_size[1] - 230, width, height)
+            pygame.draw.rect(self.window, (50, 120, 50), info_border_rect, 5)
 
             self.camera_scroll[0] += (self.movement[1] - self.movement[0]) * self.scroll_speed
             self.camera_scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_speed
