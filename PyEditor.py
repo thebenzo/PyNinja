@@ -62,9 +62,19 @@ class Editor:
             self.window.fill((144, 201, 120))
             self.viewport.blit(self.background, (0, 0))
 
-            level_text = f'{'*' if self.map_changed else ''}map{self.level}.json [Use ↑ or ↓ to change current map]'
+            level_text = f'{'*' if self.map_changed else ''}map{self.level}.json [Use ↑ or ↓ to change map]'
             level_text_surface = self.font.render(level_text, True, (255, 25, 25) if self.map_changed else (30, 30, 30))
             self.window.blit(level_text_surface, (840 / 2 - level_text_surface.get_width() / 2, 4))
+
+            save_info_text = 'lCTRL + S to save map'
+            load_info_text = '(O) to load current map.'
+            clear_info_text = 'Del to clear map.'
+            save_info_text_surface = self.font.render(save_info_text, True, (30, 30, 30))
+            load_info_text_surface = self.font.render(load_info_text, True, (30, 30, 30))
+            clear_info_text_surface = self.font.render(clear_info_text, True, (30, 30, 30))
+            self.window.blit(save_info_text_surface, (self.window_size[0] - save_info_text_surface.get_width() - 16, 666 + save_info_text_surface.get_height()))
+            self.window.blit(load_info_text_surface, (self.window_size[0] - load_info_text_surface.get_width() - 16, 686 + load_info_text_surface.get_height() + 10))
+            self.window.blit(clear_info_text_surface, (self.window_size[0] - clear_info_text_surface.get_width() - 16, 706 + clear_info_text_surface.get_height() + 20))
 
             self.camera_scroll[0] += (self.movement[1] - self.movement[0]) * self.scroll_speed
             self.camera_scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_speed
